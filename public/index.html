@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas with Coordinates</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: row;
+      background-color: #ffe6e6;
+    }
+    canvas {
+      margin: 20px;
+      border: 1px solid black;
+      background-color: #fdd;
+    }
+    .controls {
+      margin: 20px;
+      padding: 10px;
+      background-color: white;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+    }
+    .controls div {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+<canvas id="canvas" width="500" height="500"></canvas>
+<div class="controls">
+  <div><strong>점의 좌표</strong></div>
+  <div id="LeftBottom"></div>
+  <div id="LeftTop"></div>
+  <div id="RightBottom"></div>
+  <div id="RightTop"></div>
+  <div id="Center"></div>
+  <div>
+    <strong>이동</strong><br>
+    <div>x: <input id="translateX" type="number" value="0" step="1"></div>
+    <div>y: <input id="translateY" type="number" value="0" step="1"></div>
+  </div>
+  <div>
+    <strong>회전</strong><br>
+    <div>각도: <input id="rotate" type="number" value="0" step="1"></div>
+  </div>
+  <div>
+    <strong>회전 중심 변경</strong><br>
+    <div>x: <input id="pivotX" type="number" value="0" step="1"></div>
+    <div>y: <input id="pivotY" type="number" value="0" step="1"></div>
+  </div>
+</div>
+<script type="module" src="../src/index.js"></script>
+</body>
+</html>
