@@ -6,7 +6,12 @@ class CanvasScene {
         this.ctx = this.canvas.getContext("2d");
         this.halfWidth = this.canvas.width / 2;
         this.halfHeight = this.canvas.height / 2;
-        this.rectScale = 100.0;
+        this.scale = 100;
+        this.transX = 0;
+        this.transY = 0;
+        this.degree = 0;
+        this.pivotX = 0;
+        this.pivotY = 0;
 
         // Inputs
         this.translateXInput = document.getElementById(options.translateX);
@@ -96,10 +101,10 @@ class CanvasScene {
             multiplyMatrices3x3(basisTransform, translateToOrigin)
         );
 
-        transform[0][0] *= this.rectScale;
-        transform[0][1] *= -this.rectScale;
-        transform[1][0] *= this.rectScale;
-        transform[1][1] *= -this.rectScale;
+        transform[0][0] *= this.scale;
+        transform[0][1] *= -this.scale;
+        transform[1][0] *= this.scale;
+        transform[1][1] *= -this.scale;
 
         return transform;
     }
@@ -144,16 +149,19 @@ class CanvasScene {
     }
 
     drawScene() {
-        const translateX = parseInt(this.translateXInput.value);
-        const translateY = parseInt(this.translateYInput.value) * (-1);
-        const degree = parseInt(this.rotateInput.value);
-        const pivotX = parseInt(this.pivotXInput.value);
-        const pivotY = parseInt(this.pivotYInput.value) * (-1);
+        // this.drawScene2();
+        // return;
+
+        this.transX = parseInt(this.translateXInput.value);
+        this.transY = parseInt(this.translateYInput.value) * (-1);
+        this.degree = parseInt(this.rotateInput.value);
+        this.pivotX = parseInt(this.pivotXInput.value);
+        this.pivotY = parseInt(this.pivotYInput.value) * (-1);
 
         const rectTransform = this.buildRectTransform(
-            translateX, translateY, pivotX,
-            pivotY,
-            degree
+            this.transX, this.transY,
+            this.pivotX, this.pivotY,
+            this.degree
         );
 
         this.displayPositions(rectTransform);
@@ -163,8 +171,33 @@ class CanvasScene {
 
         this.ctx.save();
         this.drawRect(rectTransform);
-        this.drawPivot(translateX, translateY, pivotX, pivotY);
+        this.drawPivot(this.transX, this.transY, this.pivotX, this.pivotY);
         this.ctx.restore();
+    }
+
+    drawScene2() {
+        const duration = 2000;
+        const startTime = performance.now();
+
+        const animate = (currentTime) => {
+            const elapsed = performance.now() - startTime;
+            const ratio = Math.min(elapsed / duration, 1);
+
+            this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+            const transX = 300 * ratio;
+            this.ctx.setTransform(1, 0, 0, 1, transX, 150);
+
+            this.ctx.fillStyle = "blue";
+            this.ctx.fillRect(-25, -25, 50, 50);
+
+            if (ratio < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+
+        requestAnimationFrame(animate);
     }
 }
 
