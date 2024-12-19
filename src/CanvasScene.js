@@ -84,11 +84,11 @@ class CanvasScene {
             return;
         }
 
-        this.transX = parseInt(this.translateXInput.value);
-        this.transY = parseInt(this.translateYInput.value) * (-1);
-        this.degree = parseInt(this.rotateInput.value);
-        this.pivotX = parseInt(this.pivotXInput.value);
-        this.pivotY = parseInt(this.pivotYInput.value) * (-1);
+        this.transX = this.getInputValue(this.translateXInput);
+        this.transY = this.getInputValue(this.translateYInput) * (-1);
+        this.degree = this.getInputValue(this.rotateInput);
+        this.pivotX = this.getInputValue(this.pivotXInput);
+        this.pivotY = this.getInputValue(this.pivotYInput) * (-1);
     }
 
     turnAnimate() {
@@ -214,6 +214,11 @@ class CanvasScene {
         this.rightBottomOutput.textContent = `Right Bottom: ${vectorToStr(rightBottom)}`;
         this.rightTopOutput.textContent = `Right Top: ${vectorToStr(rightTop)}`;
         this.centerOutput.textContent = `Center: ${vectorToStr(center)}`;
+    }
+
+    getInputValue(input, defaultValue = 0) {
+        const v = parseInt(input);
+        return isNaN(v) ? defaultValue : v;
     }
 }
 
