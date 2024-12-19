@@ -102,10 +102,14 @@ class CanvasScene {
         const startDegree = this.degree;
         const targetDegree = startDegree + 360;
 
+        const easeInOut = (t) => {
+            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        }
         const animate = (currentTime) => {
             const elapsed = performance.now() - startTime;
             const ratio = Math.min(elapsed / duration, 1);
-            this.degree = ratio * targetDegree + (1.0 - ratio) * startDegree;
+            const easeRatio = easeInOut(ratio);
+            this.degree = easeRatio * targetDegree + (1.0 - easeRatio) * startDegree;
 
             this.drawScene();
 
