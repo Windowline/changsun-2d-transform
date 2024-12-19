@@ -39,11 +39,11 @@ class CanvasScene {
         inputs.forEach(input => {
             input.addEventListener("focus", () => this.clearDefault(input));
             input.addEventListener("blur", () => this.restoreDefault(input));
-            input.addEventListener("input", () => this.drawScene());
+            input.addEventListener("input", () => {this.updateRectInfo(); this.drawScene();});
         });
 
         this.turnBtn = document.getElementById(options.turn);
-        this.turnBtn.addEventListener("click", () => this.turnAnimate());
+        this.turnBtn.addEventListener("click", () => {this.turnAnimate(); this.drawScene();});
     }
 
     clearDefault(input) {
@@ -55,6 +55,7 @@ class CanvasScene {
     restoreDefault(input) {
         if (input.value.trim() === "") {
             input.value = "0";
+            this.updateRectInfo();
             this.drawScene();
         }
     }
@@ -75,6 +76,65 @@ class CanvasScene {
             this.ctx.fillText(i, this.halfWidth + i, this.halfHeight - 5);
             this.ctx.fillText(-i, this.halfWidth + 5, this.halfHeight + i);
         }
+    }
+
+
+    updateRectInfo() {
+        if (this.animating) {
+            return;
+        }
+
+        this.transX = parseInt(this.translateXInput.value);
+        this.transY = parseInt(this.translateYInput.value) * (-1);
+        this.degree = parseInt(this.rotateInput.value);
+        this.pivotX = parseInt(this.pivotXInput.value);
+        this.pivotY = parseInt(this.pivotYInput.value) * (-1);
+    }
+
+    turnAnimate() {
+        if (this.animating) {
+            return;
+        }
+
+        this.animating = true;
+        const duration = 1000;
+        const startTime = performance.now();
+        const startDegree = this.degree;
+        const targetDegree = startDegree + 360;
+
+        const animate = (currentTime) => {
+            const elapsed = performance.now() - startTime;
+            const ratio = Math.min(elapsed / duration, 1);
+            this.degree = ratio * targetDegree + (1.0 - ratio) * startDegree;
+
+            this.drawScene();
+
+            if (ratio < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                this.animating = false;
+            }
+        };
+
+        requestAnimationFrame(animate);
+    }
+
+    drawScene() {
+        const rectTransform = this.buildRectTransform(
+            this.transX, this.transY,
+            this.pivotX, this.pivotY,
+            this.degree
+        );
+
+        this.displayPositions(rectTransform);
+
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.drawAxes();
+
+        this.ctx.save();
+        this.drawRect(rectTransform);
+        this.drawPivot(this.transX, this.transY, this.pivotX, this.pivotY);
+        this.ctx.restore();
     }
 
     buildRectTransform(translateX, translateY, pivotX, pivotY, degree) {
@@ -150,77 +210,6 @@ class CanvasScene {
         this.rightBottomOutput.textContent = `Right Bottom: ${vectorToStr(rightBottom)}`;
         this.rightTopOutput.textContent = `Right Top: ${vectorToStr(rightTop)}`;
         this.centerOutput.textContent = `Center: ${vectorToStr(center)}`;
-    }
-
-    drawScene() {
-        if (this.animating) {
-            return;
-        }
-
-        this.transX = parseInt(this.translateXInput.value);
-        this.transY = parseInt(this.translateYInput.value) * (-1);
-        this.degree = parseInt(this.rotateInput.value);
-        this.pivotX = parseInt(this.pivotXInput.value);
-        this.pivotY = parseInt(this.pivotYInput.value) * (-1);
-
-        const rectTransform = this.buildRectTransform(
-            this.transX, this.transY,
-            this.pivotX, this.pivotY,
-            this.degree
-        );
-
-        this.displayPositions(rectTransform);
-
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.drawAxes();
-
-        this.ctx.save();
-        this.drawRect(rectTransform);
-        this.drawPivot(this.transX, this.transY, this.pivotX, this.pivotY);
-        this.ctx.restore();
-    }
-
-    turnAnimate() {
-        if (this.animating) {
-            return;
-        }
-
-        this.animating = true;
-        const duration = 1000;
-        const startTime = performance.now();
-        const startDegree = this.degree;
-        const targetDegree = startDegree + 360;
-
-        const animate = (currentTime) => {
-            const elapsed = performance.now() - startTime;
-            const ratio = Math.min(elapsed / duration, 1);
-            this.degree = ratio * targetDegree + (1.0 - ratio) * startDegree;
-
-            const rectTransform = this.buildRectTransform(
-                this.transX, this.transY,
-                this.pivotX, this.pivotY,
-                this.degree
-            );
-
-            this.displayPositions(rectTransform);
-
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.drawAxes();
-
-            this.ctx.save();
-            this.drawRect(rectTransform);
-            this.drawPivot(this.transX, this.transY, this.pivotX, this.pivotY);
-            this.ctx.restore();
-
-            if (ratio < 1) {
-                requestAnimationFrame(animate);
-            } else {
-                this.animating = false;
-            }
-
-        };
-
-        requestAnimationFrame(animate);
     }
 }
 
