@@ -13,6 +13,7 @@ const canvasScene = new CanvasScene("canvas", {
         rightTop: "RightTop",
         center: "Center"
     },
+    turn: "turn"
 });
 
 canvasScene.drawScene();

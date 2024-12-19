@@ -12,6 +12,7 @@ class CanvasScene {
         this.degree = 0;
         this.pivotX = 0;
         this.pivotY = 0;
+        this.animating = false;
 
         // Inputs
         this.translateXInput = document.getElementById(options.translateX);
@@ -40,6 +41,9 @@ class CanvasScene {
             input.addEventListener("blur", () => this.restoreDefault(input));
             input.addEventListener("input", () => this.drawScene());
         });
+
+        this.turnBtn = document.getElementById(options.turn);
+        this.turnBtn.addEventListener("click", () => this.turnAnimate());
     }
 
     clearDefault(input) {
@@ -149,8 +153,9 @@ class CanvasScene {
     }
 
     drawScene() {
-        // this.drawScene2();
-        // return;
+        if (this.animating) {
+            return;
+        }
 
         this.transX = parseInt(this.translateXInput.value);
         this.transY = parseInt(this.translateYInput.value) * (-1);
@@ -175,26 +180,44 @@ class CanvasScene {
         this.ctx.restore();
     }
 
-    drawScene2() {
-        const duration = 2000;
+    turnAnimate() {
+        if (this.animating) {
+            return;
+        }
+
+        this.animating = true;
+        const duration = 1000;
         const startTime = performance.now();
+        const startDegree = this.degree;
+        const targetDegree = startDegree + 360;
 
         const animate = (currentTime) => {
             const elapsed = performance.now() - startTime;
             const ratio = Math.min(elapsed / duration, 1);
+            this.degree = ratio * targetDegree + (1.0 - ratio) * startDegree;
 
-            this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            const rectTransform = this.buildRectTransform(
+                this.transX, this.transY,
+                this.pivotX, this.pivotY,
+                this.degree
+            );
+
+            this.displayPositions(rectTransform);
+
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.drawAxes();
 
-            const transX = 300 * ratio;
-            this.ctx.setTransform(1, 0, 0, 1, transX, 150);
-
-            this.ctx.fillStyle = "blue";
-            this.ctx.fillRect(-25, -25, 50, 50);
+            this.ctx.save();
+            this.drawRect(rectTransform);
+            this.drawPivot(this.transX, this.transY, this.pivotX, this.pivotY);
+            this.ctx.restore();
 
             if (ratio < 1) {
                 requestAnimationFrame(animate);
+            } else {
+                this.animating = false;
             }
+
         };
 
         requestAnimationFrame(animate);
