@@ -71,8 +71,9 @@ class CanvasScene {
 
         this.ctx.fillStyle = "black";
         this.ctx.font = "8px Arial";
-        for (let i = -200; i <= 200; i += 50) {
-            if (i === 0) continue;
+        for (let i = -this.halfWidth; i <= this.halfWidth; i += 50) {
+            if (i === 0)
+                continue;
             this.ctx.fillText(i, this.halfWidth + i, this.halfHeight - 5);
             this.ctx.fillText(-i, this.halfWidth + 5, this.halfHeight + i);
         }
